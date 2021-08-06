@@ -6,6 +6,24 @@
 void *currentfont;
 #define size 5
 #define MAX 10
+
+void setFont(void *font)
+{
+    currentfont = font;
+}
+
+void drawstring(float x, float y, char *string)
+{
+    char *c;
+    glRasterPos2f(x, y);
+
+    for (c = string; *c != '\0'; c++)
+    {
+        glColor3f(0.0, 0.0, 0.0);
+        glutBitmapCharacter(currentfont, *c);
+    }
+}
+//button
 class button
 {
     int x1, y1, x2, y2;
@@ -29,6 +47,66 @@ public:
     void togglestate();
     int insidebutton(int x, int y);
 };
+
+void button::draw()
+{
+    setFont(GLUT_BITMAP_HELVETICA_18);
+    glColor3f(1.0, 1.0, 1.0);
+    drawstring(x1 + 10, y1 + 10, str);
+    glColor3f(0.5,1.0,0.0);
+    glBegin(GL_POLYGON);
+    glVertex2f(x1, y1);
+    glVertex2f(x2, y1);
+    glVertex2f(x2, y2);
+    glVertex2f(x1, y2);
+    glEnd();
+    if (state == 0)
+    {
+        glLineWidth(10);
+        glColor3f(1, 0, 0);
+        glBegin(GL_LINES);
+
+        glVertex2f(x1, y1);
+        glVertex2f(x2, y1);
+        glVertex2f(x2, y1);
+        glVertex2f(x2, y2);
+
+        glEnd();
+    }
+    else if (state == 1)
+    {
+        glLineWidth(10);
+        glColor3f(1, 0, 0);
+        glBegin(GL_LINES);
+
+        glVertex2f(x1, y1);
+        glVertex2f(x1, y2);
+        glVertex2f(x1, y2);
+        glVertex2f(x2, y2);
+        glEnd();
+    }
+}
+
+void button::togglestate(void)
+{
+    state = (state == 1) ? 0 : 1;
+}
+
+int button::insidebutton(int x, int y)
+{
+    if (x > x1 && x < x2 && y > y1 && y < y2)
+        return 1;
+    else
+        return 0;
+}
+
+button btn1(100, 100, 175, 150, "Push");
+button btn2(400, 100, 475, 150, "Pop");
+button btn3(100, 100, 175, 150, "Insert");
+button btn4(400, 100, 475, 150, "Delete");
+button btn5(10, 550, 85, 585, "Back");
+
+//Stack
 class stack
 {
     button s[size];
@@ -47,100 +125,6 @@ public:
 };
 
 stack st;
-class queue
-{
-    button que[MAX];
-    int front, rear;
-
-public:
-    queue()
-    {
-        front = -1;
-        rear = -1;
-    }
-    void displayqueue();
-    void insert_element();
-    void delete_element();
-};
-
-queue q;
-
-void setFont(void *font)
-{
-    currentfont = font;
-}
-
-void drawstring(float x, float y, char *string)
-{
-    char *c;
-    glRasterPos2f(x, y);
-
-    for (c = string; *c != '\0'; c++)
-    {
-        glColor3f(0.0, 0.0, 0.0);
-        glutBitmapCharacter(currentfont, *c);
-    }
-}
-
-void button::draw()
-{
-    setFont(GLUT_BITMAP_HELVETICA_18);
-    glColor3f(1.0, 1.0, 1.0);
-    drawstring(x1 + 10, y1 + 10, str);
-    glColor3f(0.2, 0.2, 0.8);
-    glBegin(GL_POLYGON);
-    glVertex2f(x1, y1);
-    glVertex2f(x2, y1);
-    glVertex2f(x2, y2);
-    glVertex2f(x1, y2);
-    glEnd();
-    if (state == 0)
-    {
-        glColor3f(0, 0, 0);
-        glBegin(GL_LINES);
-        glVertex2f(x1, y1);
-        glVertex2f(x2, y1);
-        glVertex2f(x2, y1);
-        glVertex2f(x2, y2);
-        glEnd();
-    }
-    else if (state == 1)
-    {
-        glColor3f(0, 0, 0);
-        glBegin(GL_LINES);
-        glVertex2f(x1, y1);
-        glVertex2f(x1, y2);
-        glVertex2f(x1, y2);
-        glVertex2f(x2, y2);
-        glEnd();
-    }
-}
-
-void button::togglestate(void)
-{
-    /*if(state==1)
-		state=0;
-	else if(state==0)
-		state=1;*/
-    state = (state == 1) ? 0 : 1;
-}
-
-int button::insidebutton(int x, int y)
-{
-    if (x > x1 && x < x2 && y > y1 && y < y2)
-        return 1;
-    else
-        return 0;
-}
-
-button btn1(100, 100, 175, 150, "Push");
-button btn2(200, 100, 275, 150, "Pop");
-button btn3(300, 100, 375, 150, "Insert");
-button btn4(400, 100, 475, 150, "Delete");
-
-//
-// Stack functions start
-//
 int stack::stfull()
 {
     if (st.top >= size - 1)
@@ -153,7 +137,7 @@ void stack::push(int item)
 {
     char str[10];
     snprintf(str, sizeof(str), "%d", item);
-    button btn(100, 250 + st.top * 50, 150, 300 + st.top * 50, str);
+    button btn(100, 250 + st.top * 52, 175, 300 + st.top * 52, str);
     st.top++;
 
     st.s[st.top] = btn;
@@ -187,18 +171,32 @@ void stack::displaystack()
             st.s[i].draw();
     }
 }
-//
-//stack functions end
-//
-//
-// queue function starts
-//
+
+//queue
+class queue
+{
+    button que[MAX];
+    int front, rear;
+
+public:
+    queue()
+    {
+        front = -1;
+        rear = -1;
+    }
+    void displayqueue();
+    void insert_element();
+    void delete_element();
+};
+
+queue q;
+
 void queue::insert_element()
 {
     static int num = 0;
     char str[10];
     snprintf(str, sizeof(str), "%d", num++);
-    button btn(300, 250 + rear * 50, 350, 300 + rear * 50, str);
+    button btn(100, 250 + rear * 50, 175, 300 + rear * 50, str);
     if (front == 0 && rear == MAX - 1)
         drawstring(10, 10, " Queue OverFlow Occured");
     else if (front == -1 && rear == -1)
@@ -234,9 +232,7 @@ void queue::delete_element()
             front = 0;
         else
             front++;
-        //     printf("\n The deleted element is: %s",element.str);
-    }
-}
+}}
 
 void queue::displayqueue()
 {
@@ -245,35 +241,62 @@ void queue::displayqueue()
         drawstring(300, 10, " No elements to display in queue");
     else
     {
-        //     printf("\n The queue elements are:\n ");
         for (i = front; i <= rear; i++)
         {
             que[i].draw();
         }
     }
 }
-//
-// queue function ends
-//
-void displaystacknqueue()
-{
-    st.displaystack();
-    q.displayqueue();
-}
-void display()
+
+void displaystackpage()
 {
     glClearColor(1.0, 1.0, 1.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     btn1.draw();
     btn2.draw();
-    btn3.draw();
-    btn4.draw();
-    displaystacknqueue();
+    btn5.draw();
+    st.displaystack();
     glFlush();
     glutSwapBuffers();
-    //glutPostRedisplay();
 }
+
+void displayqueuepage()
+{
+    glClearColor(1.0, 1.0, 1.0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    btn3.draw();
+    btn4.draw();
+    btn5.draw();
+    q.displayqueue();
+    glFlush();
+    glutSwapBuffers();
+    //
+}
+
+void welcome()
+{
+    glClearColor(0,0,0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glColor3f(1, 0, 0);
+
+    glRasterPos3f(230, 500, 0);
+    char title[] = "Data Structures";
+    for (int i = 0; i < strlen(title); i++)
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, title[i]);
+
+    glRasterPos3f(230, 300, 0);
+    char q[] = "1. Queue";
+    for (int i = 0; i < strlen(q); i++)
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, q[i]);
+
+    glRasterPos3f(230, 230, 0);
+    char s[] = "2. Stack";
+    for (int i = 0; i < strlen(s); i++)
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, s[i]);
+
+    glutSwapBuffers();
+}
+
 void mouse(int btn, int state, int x, int y)
 {
     static int itemno = 0;
@@ -283,8 +306,8 @@ void mouse(int btn, int state, int x, int y)
         if (btn1.insidebutton(x, y))
         {
             btn1.togglestate();
-            if (!st.stfull())
-                st.push(itemno++);
+            if (!st.stfull()){
+                st.push(itemno++);}
         }
         if (btn2.insidebutton(x, y))
         {
@@ -301,6 +324,11 @@ void mouse(int btn, int state, int x, int y)
         {
             btn4.togglestate();
             q.delete_element();
+        }
+        if (btn5.insidebutton(x, y))
+        {
+            glutDisplayFunc(welcome);
+            glutPostRedisplay();
         }
     }
     if (btn == GLUT_LEFT_BUTTON && state == GLUT_UP)
@@ -325,23 +353,26 @@ void mouse(int btn, int state, int x, int y)
     glutPostRedisplay();
 }
 
-void welcome(){
-glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-
-glutSwapBuffers();
+void keys(unsigned char key, int x, int y)
+{
+    if (key == '1')
+    {
+        glutDisplayFunc(displayqueuepage);
+    }
+    if (key == '2')
+    {
+        glutDisplayFunc(displaystackpage);
+    }
+    glutPostRedisplay();
 }
 
 void init()
 {
-    glClearColor(1,1,1,1);
+    glClearColor(1, 1, 1, 1);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(0, 600, 0, 600);
     glMatrixMode(GL_MODELVIEW);
-}
-
-void idle()
-{
 }
 
 int main(int argc, char **argv)
@@ -352,7 +383,7 @@ int main(int argc, char **argv)
     glutCreateWindow("STACK AND QUEUE");
     glutDisplayFunc(welcome);
     glutMouseFunc(mouse);
-    glutIdleFunc(idle);
+    glutKeyboardFunc(keys);
     glEnable(GL_DEPTH_TEST);
     init();
     glutMainLoop();

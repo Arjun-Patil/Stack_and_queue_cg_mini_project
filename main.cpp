@@ -51,7 +51,7 @@ public:
 void button::draw()
 {
     setFont(GLUT_BITMAP_HELVETICA_18);
-    glColor3f(1.0, 1.0, 1.0);
+    glColor3f(1.0, 0.0, 0.0);
     drawstring(x1 + 10, y1 + 10, str);
     glColor3f(0.5,1.0,0.0);
     glBegin(GL_POLYGON);
@@ -250,7 +250,7 @@ void queue::displayqueue()
 
 void displaystackpage()
 {
-    glClearColor(1.0, 1.0, 1.0, 0.0);
+    glClearColor(0,0,0, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     btn1.draw();
     btn2.draw();
@@ -262,7 +262,7 @@ void displaystackpage()
 
 void displayqueuepage()
 {
-    glClearColor(1.0, 1.0, 1.0, 0.0);
+    glClearColor(0,0,0, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     btn3.draw();
     btn4.draw();
@@ -293,6 +293,11 @@ void welcome()
     char s[] = "2. Stack";
     for (int i = 0; i < strlen(s); i++)
         glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, s[i]);
+
+    glRasterPos3f(285, 10, 0);
+    char p[] = "Press 1 for QUEUE and 2 for STACK";
+    for (int i = 0; i < strlen(p); i++)
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, p[i]);
 
     glutSwapBuffers();
 }
